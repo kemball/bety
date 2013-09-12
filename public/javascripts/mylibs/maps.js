@@ -371,7 +371,8 @@ function makecroplegend(legend){
 }
 function makecostlegend(legend){
   var colors = ['#00ff00','#ffff00','#ff9900','#ff0000'];
-  var texts = ["< 50 $/ha","<100 $/ha","<150 $/ha",">150 $/ha"]
+
+  var texts = ["< $50/ha","< $100/ha","< $150/ha","> $150/ha"]
   for(i=0;i<colors.length;i++){
     var swatchdiv = document.createElement('div');
     var swatch = document.createElement('span');

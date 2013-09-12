@@ -73,9 +73,14 @@ class SpeciesController < ApplicationController
   def index
     if params[:format].nil? or params[:format] == 'html'
       @iteration = params[:iteration][/\d+/] rescue 1
-      @species = Specie.sorted_order("#{sort_column('species','scientificname')} #{sort_direction}").search(params[:search]).paginate :page => params[:page]
+      @species = Specie.sorted_order("#{sort_column('species','scientificname')} #{sort_direction}").search(params[:search]).paginate(
+        :page => params[:page], 
+        :per_page => params[:DataTables_Table_0_length]
+      )
+      log_searches(Specie)
     else # Allow url queries of data, with scopes, only xml & csv ( & json? )
       @species = Specie.api_search(params)
+      log_searches(Specie.method(:api_search), params)
     end
 
     respond_to do |format|

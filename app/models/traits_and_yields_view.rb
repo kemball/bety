@@ -11,9 +11,12 @@ class TraitsAndYieldsView < ActiveRecord::Base
 
   scope :sorted_order, lambda { |order| order(order).includes(SEARCH_INCLUDES) }
   scope :search, lambda { |search| where(advanced_search(search)) }
+  scope :restrict_access, lambda { |access_level| where("access_level >= #{access_level}")  }
 
   # MAYBE SET SCOPE HERE?
 
+  # make NumberHelper available to use inside comma block:
+  extend ActionView::Helpers::NumberHelper
 
   comma do
     #result_type 'result_type'
@@ -23,11 +26,12 @@ class TraitsAndYieldsView < ActiveRecord::Base
     #treatment_id 'treatment_id'
     sitename 'sitename'
     city 'city'
-
-    # sprintf will both round to 2 decimal places and ensure that (e.g.) "14" is displayed as "14.00"
-    lat 'lat' do |num| num = num.nil? ? '[missing]' : sprintf("%0.2f", num) end
-    lon 'lon' do |num| num = num.nil? ? '[missing]' : sprintf("%0.2f", num) end
-
+    lat 'lat' do |num|
+      num.nil? ? '[missing]' : TraitsAndYieldsView.number_with_precision(num, precision: 2)
+    end
+    lon 'lon' do |num|
+      num.nil? ? '[missing]' : TraitsAndYieldsView.number_with_precision(num, precision: 2)
+    end
     scientificname 'scientificname'
     commonname 'commonname'
     genus 'genus'
@@ -39,11 +43,23 @@ class TraitsAndYieldsView < ActiveRecord::Base
     year 'year'
     dateloc 'dateloc'
     trait 'trait'
-    mean 'mean' do |num| if num.nil? then "[missing]" else num.to_f.round_to_significant_digit(3) end end
+    mean 'mean' do |num|
+      if num.nil? then
+        "[missing]"
+      else
+        TraitsAndYieldsView.number_with_precision(num, precision: 3, significant: true)
+      end
+    end
     units 'units'
     n 'n'
     statname 'statname'
-    stat 'stat' do |num| if num.nil? then "[missing]" else num.to_f.round_to_significant_digit(3) end end
+    stat 'stat' do |num|
+      if num.nil? then
+        "[missing]"
+      else 
+        TraitsAndYieldsView.number_with_precision(num, precision: 3)#, significant: true)
+      end 
+    end
     notes 'notes'
   end
 
